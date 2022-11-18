@@ -10,18 +10,6 @@
 This repo implements document preprocessing for invoices.
 
 The API is hosted at `https://api.unstructured.io`.
-
-### Updates TODO list
-
-- [x] Update the pipeline name and description in `README.md` (this file)
-- [x] Rename all instances of {{ template }} in `README.md` (this file)
-- [x] Update the pipeline family name and pipeline package in the `Makefile`
-- [x] Update the pipeline name in `preprocessing-pipeline-family.yaml`
-- [x] Rename the folders `prepline_template` and `test_template`
-- [x] Change name of the variable `PIPELINE_FAMILY` at the top of `.github/workflows/ci.yml`
-- [x] If needed, install additional dependencies in the `Dockerfile`
-- [x] Add any additional requirements you need to `requirements/base.in` and run `make pip-compile`
-
 ## Developer Quick Start
 
 * Using `pyenv` to manage virtualenv's is recommended
