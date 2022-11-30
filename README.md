@@ -52,6 +52,10 @@ You can generate the FastAPI APIs from your pipeline notebooks by running `make 
 See our [security policy](https://github.com/Unstructured-IO/pipeline-invoices/security/policy) for
 information on how to report security vulnerabilities.
 
+## 🤗 Hugging Face
+
+[Hugging Face Spaces](https://huggingface.co/spaces) offer a simple way to host ML demo apps, models and datasets directly on our organization’s profile. This allows us to showcase our projects and work collaboratively with other people in the ML ecosystem. Visit our space [here](https://huggingface.co/unstructuredio)!
+
 ## Learn more
 
 | Section | Description |
