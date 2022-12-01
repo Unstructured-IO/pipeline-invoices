@@ -4,12 +4,22 @@
 #
 #    pip-compile requirements/base.in
 #
+aiohttp==3.8.3
+    # via
+    #   datasets
+    #   fsspec
+aiosignal==1.3.1
+    # via aiohttp
 anyio==3.6.1
     # via
     #   starlette
     #   watchfiles
+async-timeout==4.0.2
+    # via aiohttp
 attrs==22.1.0
-    # via jsonschema
+    # via
+    #   aiohttp
+    #   jsonschema
 beautifulsoup4==4.11.1
     # via nbconvert
 bleach==5.0.1
@@ -17,28 +27,62 @@ bleach==5.0.1
 certifi==2022.9.24
     # via requests
 charset-normalizer==2.1.1
-    # via requests
+    # via
+    #   aiohttp
+    #   requests
 click==8.1.3
     # via
     #   nltk
     #   unstructured-api-tools
     #   uvicorn
+datasets[vision]==2.7.1
+    # via donut-python
 defusedxml==0.7.1
     # via nbconvert
+dill==0.3.6
+    # via
+    #   datasets
+    #   multiprocess
+donut-python==1.0.9
+    # via -r requirements/base.in
 entrypoints==0.4
     # via jupyter-client
 fastapi==0.85.0
     # via unstructured-api-tools
 fastjsonschema==2.16.2
     # via nbformat
+filelock==3.8.0
+    # via
+    #   huggingface-hub
+    #   transformers
+fire==0.4.0
+    # via lightning-utilities
+frozenlist==1.3.3
+    # via
+    #   aiohttp
+    #   aiosignal
+fsspec[http]==2022.11.0
+    # via
+    #   datasets
+    #   pytorch-lightning
 h11==0.13.0
     # via uvicorn
 httptools==0.5.0
     # via uvicorn
+huggingface-hub==0.11.1
+    # via
+    #   datasets
+    #   timm
+    #   transformers
 idna==3.4
     # via
     #   anyio
     #   requests
+    #   yarl
+importlib-metadata==5.1.0
+    # via nbconvert
+importlib-resources==5.10.0
+    # via jsonschema
 jinja2==3.1.2
     # via
     #   nbconvert
@@ -56,6 +100,8 @@ jupyter-core==4.11.1
     #   nbformat
 jupyterlab-pygments==0.2.2
     # via nbconvert
+lightning-utilities==0.3.0
+    # via pytorch-lightning
 limits==1.6
     # via slowapi
 lxml==4.9.1
@@ -68,6 +114,14 @@ markupsafe==2.1.1
     #   nbconvert
 mistune==2.0.4
     # via nbconvert
+multidict==6.0.2
+    # via
+    #   aiohttp
+    #   yarl
+multiprocess==0.70.14
+    # via datasets
+munch==2.5.0
+    # via sconf
 mypy==0.991
     # via unstructured-api-tools
 mypy-extensions==0.4.3
@@ -85,11 +139,41 @@ nest-asyncio==1.5.5
     #   jupyter-client
     #   nbclient
 nltk==3.7
-    # via unstructured
+    # via
+    #   donut-python
+    #   unstructured
+numpy==1.23.5
+    # via
+    #   datasets
+    #   pandas
+    #   pyarrow
+    #   pytorch-lightning
+    #   tensorboardx
+    #   torchmetrics
+    #   torchvision
+    #   transformers
 packaging==21.3
-    # via nbconvert
+    # via
+    #   datasets
+    #   huggingface-hub
+    #   nbconvert
+    #   pytorch-lightning
+    #   torchmetrics
+    #   transformers
+pandas==1.5.2
+    # via datasets
 pandocfilters==1.5.0
     # via nbconvert
+pillow==9.3.0
+    # via
+    #   datasets
+    #   torchvision
+pkgutil-resolve-name==1.3.10
+    # via jsonschema
+protobuf==3.20.1
+    # via tensorboardx
+pyarrow==10.0.1
+    # via datasets
 pydantic==1.10.2
     # via fastapi
 pygments==2.13.0
@@ -99,27 +183,61 @@ pyparsing==3.0.9
 pyrsistent==0.18.1
     # via jsonschema
 python-dateutil==2.8.2
-    # via jupyter-client
+    # via
+    #   jupyter-client
+    #   pandas
 python-dotenv==0.21.0
     # via uvicorn
 python-multipart==0.0.5
     # via unstructured-api-tools
+pytorch-lightning==1.8.3.post1
+    # via donut-python
+pytz==2022.6
+    # via pandas
 pyyaml==6.0
-    # via uvicorn
+    # via
+    #   datasets
+    #   huggingface-hub
+    #   pytorch-lightning
+    #   timm
+    #   transformers
+    #   uvicorn
 pyzmq==24.0.1
     # via jupyter-client
 ratelimit==2.2.1
-    # via -r base.in
+    # via -r requirements/base.in
 regex==2022.10.31
-    # via nltk
+    # via
+    #   nltk
+    #   transformers
 requests==2.28.1
-    # via -r base.in
+    # via
+    #   -r requirements/base.in
+    #   datasets
+    #   fsspec
+    #   huggingface-hub
+    #   responses
+    #   torchvision
+    #   transformers
+responses==0.18.0
+    # via datasets
+ruamel-yaml==0.17.21
+    # via sconf
+ruamel-yaml-clib==0.2.7
+    # via ruamel-yaml
+sconf==0.2.5
+    # via donut-python
+sentencepiece==0.1.97
+    # via donut-python
 six==1.16.0
     # via
     #   bleach
+    #   fire
     #   limits
+    #   munch
     #   python-dateutil
     #   python-multipart
+    #   zss
 slowapi==0.1.6
     # via unstructured-api-tools
 sniffio==1.3.0
@@ -128,12 +246,38 @@ soupsieve==2.3.2.post1
     # via beautifulsoup4
 starlette==0.20.4
     # via fastapi
+tensorboardx==2.5.1
+    # via pytorch-lightning
+termcolor==2.1.1
+    # via fire
+timm==0.6.12
+    # via donut-python
 tinycss2==1.1.1
     # via nbconvert
+tokenizers==0.13.2
+    # via transformers
+tomli==2.0.1
+    # via mypy
+torch==1.13.0
+    # via
+    #   -r requirements/base.in
+    #   pytorch-lightning
+    #   timm
+    #   torchmetrics
+    #   torchvision
+torchmetrics==0.11.0
+    # via pytorch-lightning
+torchvision==0.14.0
+    # via timm
 tornado==6.2
     # via jupyter-client
 tqdm==4.64.1
-    # via nltk
+    # via
+    #   datasets
+    #   huggingface-hub
+    #   nltk
+    #   pytorch-lightning
+    #   transformers
 traitlets==5.4.0
     # via
     #   jupyter-client
@@ -141,6 +285,10 @@ traitlets==5.4.0
     #   nbclient
     #   nbconvert
     #   nbformat
+transformers==4.24.0
+    # via
+    #   -r requirements/base.in
+    #   donut-python
 types-requests==2.28.11
     # via unstructured-api-tools
 types-ujson==5.5.0
@@ -149,14 +297,22 @@ types-urllib3==1.26.24
     # via types-requests
 typing-extensions==4.3.0
     # via
+    #   huggingface-hub
     #   mypy
     #   pydantic
+    #   pytorch-lightning
+    #   starlette
+    #   torch
+    #   torchmetrics
+    #   torchvision
 unstructured==0.2.5
-    # via -r base.in
+    # via -r requirements/base.in
 unstructured-api-tools==0.4.6
-    # via -r base.in
+    # via -r requirements/base.in
 urllib3==1.26.12
-    # via requests
+    # via
+    #   requests
+    #   responses
 uvicorn[standard]==0.18.3
     # via unstructured-api-tools
 uvloop==0.17.0
@@ -169,3 +325,13 @@ webencodings==0.5.1
     #   tinycss2
 websockets==10.3
     # via uvicorn
+xxhash==3.1.0
+    # via datasets
+yarl==1.8.1
+    # via aiohttp
+zipp==3.11.0
+    # via
+    #   importlib-metadata
+    #   importlib-resources
+zss==1.2.0
+    # via donut-python
