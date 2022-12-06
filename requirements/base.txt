@@ -145,6 +145,7 @@ nltk==3.7
 numpy==1.23.5
     # via
     #   datasets
+    #   opencv-python
     #   pandas
     #   pyarrow
     #   pytorch-lightning
@@ -152,6 +153,8 @@ numpy==1.23.5
     #   torchmetrics
     #   torchvision
     #   transformers
+opencv-python==4.6.0.66
+    # via -r requirements/base.in
 packaging==21.3
     # via
     #   datasets

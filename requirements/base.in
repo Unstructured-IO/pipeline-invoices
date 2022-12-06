@@ -3,6 +3,7 @@ unstructured_api_tools==0.4.6
 
 donut-python
 pytesseract
+opencv-python
 torch
 transformers
 

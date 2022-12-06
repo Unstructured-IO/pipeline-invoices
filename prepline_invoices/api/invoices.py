@@ -21,7 +21,11 @@ router = APIRouter()
 RATE_LIMIT = os.environ.get("PIPELINE_API_RATE_LIMIT", "1/second")
 
 
-from prepline_invoices.invoice import DocumentInvoice, InvoiceModelDonut
+from prepline_invoices.invoice import (
+    DocumentInvoice,
+    InvoiceModelDonut,
+    InvoiceModelLayoutLM,
+)
 
 
 def partition_invoice(
@@ -30,9 +34,19 @@ def partition_invoice(
     file_content_type=None,
     inference_model=None,
 ):
-    if inference_model == "donut":
-        return DocumentInvoice.from_file(filename, InvoiceModelDonut())
-    return {}
+    if inference_model == ["donut"]:
+        return {
+            "invoice": str(
+                DocumentInvoice.from_file(file, filename, InvoiceModelDonut())
+            )
+        }
+    elif inference_model == ["layoutlm"]:
+        return {
+            "invoice": str(
+                DocumentInvoice.from_file(file, filename, InvoiceModelLayoutLM())
+            )
+        }
+    return {"Inference model has to be donut of layoutlm."}
 
 
 def pipeline_api(

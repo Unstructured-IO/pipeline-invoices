@@ -6,9 +6,9 @@ import json
 import numpy as np
 from pathlib import Path
 import pytesseract
-import tempfile
+import os
 import torch
-from typing import Final, List, Optional, Tuple, Union
+from typing import Final, List, Optional, Tuple, Union, BinaryIO
 
 from donut.model import DonutModel
 
@@ -71,7 +71,7 @@ def donut_load_model(
     if model_path is None:
         model_path = DONUT_MODEL_PATH
 
-    model = DonutModelMain.from_pretrained(model_path, use_auth_token=True)
+    model = DonutModelMain.from_pretrained(model_path)
 
     if device is not None:
         model.to(device)
@@ -578,10 +578,12 @@ class DocumentInvoice:
         return invoice
 
     @classmethod
-    def from_file(cls, filename: str, model: Optional[InvoiceModel] = None):
+    def from_file(
+        cls, file: BinaryIO, filename: str, model: Optional[InvoiceModel] = None
+    ):
         # logger.info(f"Reading invoice image for file: {filename} ...")
 
-        page = PageInvoice(image=Image.open(filename), model=model)
+        page = PageInvoice(image=Image.open(file), model=model)
         page.get_elements()
         return cls.from_pages([page])
 
