@@ -1,14 +1,15 @@
 from __future__ import annotations
-from abc import ABC, abstractclassmethod
-import cv2
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
-import numpy as np
-from pathlib import Path
-import pytesseract
 import os
+from pathlib import Path
+from typing import Final, List, Optional, Tuple, Union, BinaryIO, Dict, Any
+
+import cv2
+import numpy as np
+import pytesseract
 import torch
-from typing import Final, List, Optional, Tuple, Union, BinaryIO
 
 from donut.model import DonutModel
 
@@ -39,8 +40,9 @@ class DonutModelMain(DonutModel):
 
         Args:
             pretrained_model_name_or_path:
-                Name of a pretrained model name either registered in huggingface.co. or saved in local,
-                e.g., `naver-clova-ix/donut-base`, or `naver-clova-ix/donut-base-finetuned-rvlcdip`
+                Name of a pretrained model name either registered in huggingface.co. or saved in
+                local, e.g., `naver-clova-ix/donut-base`, or
+                `naver-clova-ix/donut-base-finetuned-rvlcdip`
         """
         model = super(DonutModel, cls).from_pretrained(
             pretrained_model_name_or_path, revision="main", *model_args, **kwargs
@@ -54,8 +56,8 @@ class DonutModelMain(DonutModel):
             model.decoder.model.model.decoder.embed_positions.weight = torch.nn.Parameter(
                 model.decoder.resize_bart_abs_pos_emb(
                     model.decoder.model.model.decoder.embed_positions.weight,
-                    max_length
-                    + 2,  # https://github.com/huggingface/transformers/blob/v4.11.3/src/transformers/models/mbart/modeling_mbart.py#L118-L119
+                    max_length + 2,
+                    # https://github.com/huggingface/transformers/blob/v4.11.3/src/transformers/models/mbart/modeling_mbart.py#L118-L119
                 )
             )
             model.config.max_position_embeddings = max_length
@@ -87,12 +89,13 @@ def layoutlm_load_model(
     """Loads the LayoutLMModel model using the specified parameters"""
     tokenizer = LayoutLMTokenizer.from_pretrained(LAYOUTLM_MODEL_PATH)
 
-    num_labels = len(labels)
+    # num_labels = len(labels)
     model = LayoutLMForTokenClassification.from_pretrained(
         # LAYOUTLM_MODEL_PATH, num_labels=num_labels
         "unstructuredio/layoutlmv1-invoices-fake"
     )
-    # model_path = "/Users/ajimeno/Documents/git/doc-layout-exploration/invoices/invoice-training/dataset-layoutlm-generated/processed/model.torch"
+    # model_path = "/Users/ajimeno/Documents/git/doc-layout-exploration"
+    # "/invoices/invoice-training/dataset-layoutlm-generated/processed/model.torch"
     # model.load_state_dict(torch.load(model_path))
 
     if device is not None:
@@ -104,7 +107,7 @@ def layoutlm_load_model(
 @dataclass
 class InvoiceElement:
     # Left, top, width, height
-    coordinates: List[Tuple[float, float, float, float]]
+    coordinates: Optional[List[Tuple[float, float, float, float]]]
     fieldName: Optional[str] = None
     text: Optional[str] = None
 
@@ -116,12 +119,10 @@ class InvoiceElement:
 
 
 class InvoiceModel(ABC):
-    @abstractclassmethod
+    @abstractmethod
     def get_elements(
-        image: Image,
-    ) -> Optional[
-        Tuple[Optional[List[InvoiceElement]], Optional[List[List[InvoiceElement]]]]
-    ]:
+        self, image: Image
+    ) -> Tuple[Optional[List[InvoiceElement]], Optional[List[List[InvoiceElement]]]]:
         pass
 
 
@@ -184,9 +185,7 @@ def convert_example_to_features(
         tokens = tokens[: (max_sequence_length - special_tokens_count)]
         token_boxes = token_boxes[: (max_sequence_length - special_tokens_count)]
         actual_bboxes = actual_bboxes[: (max_sequence_length - special_tokens_count)]
-        token_actual_boxes = token_actual_boxes[
-            : (max_sequence_length - special_tokens_count)
-        ]
+        token_actual_boxes = token_actual_boxes[: (max_sequence_length - special_tokens_count)]
 
     # add [SEP] token, with corresponding token boxes and actual boxes
     tokens += [tokenizer.sep_token]
@@ -269,19 +268,15 @@ labels = [
 
 
 class InvoiceModelLayoutLM(InvoiceModel):
-    def __init__(
-        self, model_file_name: Optional[str] = None, device: Optional[str] = None
-    ):
+    def __init__(self, model_file_name: Optional[str] = None, device: Optional[str] = None):
         self.tokenizer, self.model, self.labels = layoutlm_load_model(
-            model_file_name, device
+            model_file_name, device=device
         )
         self.device = device
 
     def get_elements(
         self, image: Image
-    ) -> Optional[
-        Tuple[Optional[List[InvoiceElement]], Optional[List[List[InvoiceElement]]]]
-    ]:
+    ) -> Tuple[Optional[List[InvoiceElement]], Optional[List[List[InvoiceElement]]]]:
         # process image with tesseract/paddleocr
         zoom = 6
         img = cv2.resize(
@@ -302,9 +297,7 @@ class InvoiceModelLayoutLM(InvoiceModel):
         img = cv2.dilate(img, kernel, iterations=1)
         img = cv2.erode(img, kernel, iterations=1)
 
-        ocr_df = pytesseract.image_to_data(
-            Image.fromarray(img), output_type="data.frame"
-        )
+        ocr_df = pytesseract.image_to_data(Image.fromarray(img), output_type="data.frame")
 
         ocr_df = ocr_df.dropna().assign(
             left_scaled=ocr_df.left * w_scale,
@@ -357,7 +350,7 @@ class InvoiceModelLayoutLM(InvoiceModel):
 
         word_level_predictions = []  # let's turn them into word level predictions
         final_boxes = []
-        tokens = []
+        tokens: List[str] = []
         for id, token_pred, box in zip(
             input_ids[0].squeeze().tolist(),
             token_predictions,
@@ -403,17 +396,11 @@ class InvoiceModelLayoutLM(InvoiceModel):
                             max(abox[3], b[3]),
                         ]
 
-                        invoice_components.append(
-                            {"label": alabel, "text": atext, "bbox": abox}
-                        )
+                        invoice_components.append({"label": alabel, "text": atext, "bbox": abox})
                     else:
-                        invoice_components.append(
-                            {"label": alabel, "text": atext, "bbox": abox}
-                        )
+                        invoice_components.append({"label": alabel, "text": atext, "bbox": abox})
 
-                        invoice_components.append(
-                            {"label": tlabel, "text": t, "bbox": b}
-                        )
+                        invoice_components.append({"label": tlabel, "text": t, "bbox": b})
 
                     alabel = None
                     atext = None
@@ -450,22 +437,22 @@ class InvoiceModelLayoutLM(InvoiceModel):
                             max(abox[3], b[3]),
                         ]
                     else:
-                        invoice_components.append(
-                            {"label": alabel, "text": atext, "bbox": abox}
-                        )
+                        invoice_components.append({"label": alabel, "text": atext, "bbox": abox})
 
                         alabel = tlabel
                         atext = t
                         abox = b
 
-        if alabel != None:
+        if alabel is not None:
             invoice_components.append({"label": alabel, "text": atext, "bbox": abox})
 
-        dfields = {}
+        # NOTE(alan): Narrow this type
+        dfields: Dict[str, Any] = {}
 
         position = None
+        # NOTE(alan): Narrow this type
         items = []
-        item = None
+        item: Optional[Dict[str, Any]] = None
         for d in invoice_components:
             if d["label"] != "OTHER":
                 if d["label"] in [
@@ -475,7 +462,7 @@ class InvoiceModelLayoutLM(InvoiceModel):
                     "QUANTITY",
                     "AMOUNT",
                 ]:
-                    if position == None:
+                    if position is None:
                         position = d["bbox"][1]
                         item = {}
                         items.append(item)
@@ -501,23 +488,16 @@ class InvoiceModelLayoutLM(InvoiceModel):
 
         print(dfields)
 
-        prediction = {
-            c[0]: c[1] for c in sorted(json.loads(json.dumps(dfields).lower()).items())
-        }
+        prediction = {c[0]: c[1] for c in sorted(json.loads(json.dumps(dfields).lower()).items())}
 
         return [
             InvoiceElement(coordinates=None, fieldName=k, text=v)
             for k, v in prediction.items()
             if k != "items"
         ], [
-            [
-                InvoiceElement(coordinates=None, fieldName=k, text=v)
-                for k, v in itemLine.items()
-            ]
+            [InvoiceElement(coordinates=None, fieldName=k, text=v) for k, v in itemLine.items()]
             for itemLine in (
-                prediction["items"]
-                if type(prediction["items"]) is list
-                else [prediction["items"]]
+                prediction["items"] if type(prediction["items"]) is list else [prediction["items"]]
             )
         ]
 
@@ -532,9 +512,7 @@ class InvoiceModelDonut(InvoiceModel):
 
     def get_elements(
         self, image: Image
-    ) -> Optional[
-        Tuple[Optional[List[InvoiceElement]], Optional[List[List[InvoiceElement]]]]
-    ]:
+    ) -> Tuple[Optional[List[InvoiceElement]], Optional[List[List[InvoiceElement]]]]:
         prediction = self.model.inference(image, prompt="<s_dataset-donut-generated>",)[
             "predictions"
         ][0]
@@ -544,14 +522,9 @@ class InvoiceModelDonut(InvoiceModel):
             for k, v in prediction.items()
             if k != "items"
         ], [
-            [
-                InvoiceElement(coordinates=None, fieldName=k, text=v)
-                for k, v in itemLine.items()
-            ]
+            [InvoiceElement(coordinates=None, fieldName=k, text=v) for k, v in itemLine.items()]
             for itemLine in (
-                prediction["items"]
-                if type(prediction["items"]) is list
-                else [prediction["items"]]
+                prediction["items"] if type(prediction["items"]) is list else [prediction["items"]]
             )
         ]
 
@@ -578,9 +551,7 @@ class DocumentInvoice:
         return invoice
 
     @classmethod
-    def from_file(
-        cls, file: BinaryIO, filename: str, model: Optional[InvoiceModel] = None
-    ):
+    def from_file(cls, file: BinaryIO, filename: str, model: InvoiceModel):
         # logger.info(f"Reading invoice image for file: {filename} ...")
 
         page = PageInvoice(image=Image.open(file), model=model)
@@ -591,24 +562,19 @@ class DocumentInvoice:
 class PageInvoice:
     def __init__(self, image: Image, model: InvoiceModel):
         self.image = image
-        self.elements: List[InvoiceElement]
-        self.itemLists = List[List[InvoiceElement]]
+        self.elements: Optional[List[InvoiceElement]]
+        self.itemLists = Optional[List[List[InvoiceElement]]]
         self.model = model
 
     def __str__(self):
         return "\n\n".join(
             [str(element) for element in self.elements]
-            + [
-                " ".join([str(element) for element in itemList])
-                for itemList in self.itemLists
-            ]
+            + [" ".join([str(element) for element in itemList]) for itemList in self.itemLists]
         )
 
     def get_elements(
         self, inplace=True
-    ) -> Optional[
-        Tuple[Optional[List[InvoiceElement]], Optional[List[List[InvoiceElement]]]]
-    ]:
+    ) -> Optional[Tuple[Optional[List[InvoiceElement]], Optional[List[List[InvoiceElement]]]]]:
         elements, itemLists = self.model.get_elements(self.image)
 
         if inplace:
