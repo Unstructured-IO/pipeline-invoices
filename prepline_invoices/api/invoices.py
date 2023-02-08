@@ -23,8 +23,7 @@ RATE_LIMIT = os.environ.get("PIPELINE_API_RATE_LIMIT", "1/second")
 
 from prepline_invoices.invoice import (
     DocumentInvoice,
-    InvoiceModelDonut,
-    InvoiceModelLayoutLM,
+    InvoiceModel,
 )
 
 
@@ -32,30 +31,16 @@ def partition_invoice(
     file,
     filename,
     file_content_type=None,
-    inference_model=None,
 ):
-    if inference_model == ["donut"]:
-        return {
-            "invoice": str(
-                DocumentInvoice.from_file(file, filename, InvoiceModelDonut())
-            )
-        }
-    elif inference_model == ["layoutlm"]:
-        return {
-            "invoice": str(
-                DocumentInvoice.from_file(file, filename, InvoiceModelLayoutLM())
-            )
-        }
-    return {"Inference model has to be donut of layoutlm."}
+    return {"invoice": str(DocumentInvoice.from_file(file, filename, InvoiceModel()))}
 
 
 def pipeline_api(
     file,
     file_content_type=None,
     filename=None,
-    m_inference_model=[],
 ):
-    return partition_invoice(file, filename, file_content_type, m_inference_model)
+    return partition_invoice(file, filename, file_content_type)
 
 
 import json
@@ -129,7 +114,6 @@ class MultipartMixedResponse(StreamingResponse):
 async def pipeline_1(
     request: Request,
     files: Union[List[UploadFile], None] = File(default=None),
-    inference_model: List[str] = Form(default=[]),
 ):
     content_type = request.headers.get("Accept")
 
@@ -151,7 +135,6 @@ async def pipeline_1(
 
                     response = pipeline_api(
                         _file,
-                        m_inference_model=inference_model,
                         filename=file.filename,
                         file_content_type=file.content_type,
                     )
@@ -169,7 +152,6 @@ async def pipeline_1(
 
             response = pipeline_api(
                 _file,
-                m_inference_model=inference_model,
                 filename=file.filename,
                 file_content_type=file.content_type,
             )

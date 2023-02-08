@@ -1,11 +1,8 @@
 unstructured>=0.2.4
 unstructured_api_tools==0.4.6
 
-donut-python
-pytesseract
-opencv-python
 torch
-transformers
+transformers==4.26.0
 
 ratelimit
 requests
