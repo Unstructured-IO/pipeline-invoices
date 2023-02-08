@@ -58,7 +58,7 @@ class InvoiceModel:
         self, image: Image
     ) -> Tuple[Optional[List[InvoiceElement]], Optional[List[List[InvoiceElement]]]]:
 
-        pixel_values = self.processor(image, return_tensors="pt").pixel_values
+        pixel_values = self.processor(image.convert("RGB"), return_tensors="pt").pixel_values
 
         decoder_input_ids = self.processor.tokenizer(
             "<s_unstructured-invoices>", add_special_tokens=False, return_tensors="pt"
@@ -71,6 +71,7 @@ class InvoiceModel:
 
         # process output
         prediction = self.processor.token2json(self.processor.batch_decode(outputs)[0])
+        print(prediction)
 
         return [
             InvoiceElement(fieldName=k, text=v) for k, v in prediction.items() if k != "ItemLines"
@@ -81,7 +82,7 @@ class InvoiceModel:
                 if type(prediction["ItemLines"]) is list
                 else [prediction["ItemLines"]]
             )
-        ]
+        ] if "ItemLines" in prediction else []
 
 
 class DocumentInvoice:
