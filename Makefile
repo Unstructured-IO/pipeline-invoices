@@ -103,6 +103,11 @@ docker-start-jupyter:
 test:
 	PYTHONPATH=. pytest test_${PIPELINE_PACKAGE} --cov=${PACKAGE_NAME} --cov-report term-missing
 
+## test-sample-docs:            runs the pipeline on a set of sample SEC documents
+.PHONY: test-sample-docs
+test-sample-docs:
+	PYTHONPATH=. pytest test_real_docs -W ignore::DeprecationWarning -W ignore::UserWarning
+
 .PHONY: check-coverage
 check-coverage:
 	coverage report --fail-under=90
