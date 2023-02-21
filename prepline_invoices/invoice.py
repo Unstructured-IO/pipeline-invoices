@@ -40,7 +40,7 @@ class InvoiceElement:
     text: Optional[str] = None
 
     def __str__(self):
-        return self.fieldName + ": " + self.text
+        return self.fieldName + ": " + str(self.text)
 
     def to_dict(self):
         return self.__dict__
