@@ -19,8 +19,8 @@ def test_invoice_parse_file():
         "/invoices/v0.0.0/invoices",
         files={
             "files": (
-                "img/4fabfaab-1299.png",
-                open("img/4fabfaab-1299.png", "rb"),
+                "sample-docs/4fabfaab-1299.png",
+                open("sample-docs/4fabfaab-1299.png", "rb"),
             )
         },
     )
@@ -32,8 +32,8 @@ def test_invoice_parse_files():
 
     files = [
         ("files", (file, open(file, "rb")))
-        for file in glob("img/*.png")
-        if file != "img/unstructured_logo.png"
+        for file in glob("sample-docs/*.png")
+        if file != "sample-docs/unstructured_logo.png"
     ]
 
     response = client.post(
