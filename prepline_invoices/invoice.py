@@ -57,7 +57,6 @@ class InvoiceModel:
     def get_elements(
         self, image: Image
     ) -> Tuple[Optional[List[InvoiceElement]], Optional[List[List[InvoiceElement]]]]:
-
         pixel_values = self.processor(image.convert("RGB"), return_tensors="pt").pixel_values
 
         decoder_input_ids = self.processor.tokenizer(
