@@ -14,11 +14,7 @@ from .invoices import router as invoices_router
 
 
 limiter = Limiter(key_func=get_remote_address)
-app = FastAPI(
-    title="Unstructured Pipeline API",
-    description="""""",
-    version="1.0.0",
-)
+app = FastAPI()
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 

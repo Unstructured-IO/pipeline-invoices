@@ -5,22 +5,12 @@
 
 import os
 from typing import List, Union
+
 from fastapi import status, FastAPI, File, Form, Request, UploadFile, APIRouter
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from fastapi.responses import PlainTextResponse
-import json
-from fastapi.responses import StreamingResponse
-from starlette.types import Send
-from base64 import b64encode
-from typing import Optional, Mapping, Iterator, Tuple
-import secrets
-from prepline_invoices.invoice import (
-    DocumentInvoice,
-    InvoiceModel,
-)
-
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -32,6 +22,10 @@ RATE_LIMIT = os.environ.get("PIPELINE_API_RATE_LIMIT", "1/second")
 
 
 # pipeline-api
+from prepline_invoices.invoice import (
+    DocumentInvoice,
+    InvoiceModel,
+)
 
 
 def partition_invoice(
@@ -48,6 +42,14 @@ def pipeline_api(
     filename=None,
 ):
     return partition_invoice(file, filename, file_content_type)
+
+
+import json
+from fastapi.responses import StreamingResponse
+from starlette.types import Send
+from base64 import b64encode
+from typing import Optional, Mapping, Iterator, Tuple
+import secrets
 
 
 class MultipartMixedResponse(StreamingResponse):
@@ -118,11 +120,7 @@ async def pipeline_1(
 
     if isinstance(files, list) and len(files):
         if len(files) > 1:
-            if content_type and content_type not in [
-                "*/*",
-                "multipart/mixed",
-                "application/json",
-            ]:
+            if content_type and content_type not in ["*/*", "multipart/mixed"]:
                 return PlainTextResponse(
                     content=(
                         f"Conflict in media type {content_type}"
@@ -131,8 +129,9 @@ async def pipeline_1(
                     status_code=status.HTTP_406_NOT_ACCEPTABLE,
                 )
 
-            def response_generator(is_multipart):
+            def response_generator():
                 for file in files:
+
                     _file = file.file
 
                     response = pipeline_api(
@@ -140,18 +139,15 @@ async def pipeline_1(
                         filename=file.filename,
                         file_content_type=file.content_type,
                     )
-                    if is_multipart:
-                        if type(response) not in [str, bytes]:
-                            response = json.dumps(response)
+                    if type(response) not in [str, bytes]:
+                        response = json.dumps(response)
                     yield response
 
-            if content_type == "multipart/mixed":
-                return MultipartMixedResponse(
-                    response_generator(is_multipart=True),
-                )
-            else:
-                return response_generator(is_multipart=False)
+            return MultipartMixedResponse(
+                response_generator(),
+            )
         else:
+
             file = files[0]
             _file = file.file
 
