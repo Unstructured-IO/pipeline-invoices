@@ -82,6 +82,8 @@ lxml==4.9.1
     #   python-docx
     #   python-pptx
     #   unstructured
+markdown==3.4.1
+    # via unstructured
 markupsafe==2.1.1
     # via
     #   jinja2
@@ -210,7 +212,7 @@ typing-extensions==4.3.0
     # via
     #   mypy
     #   pydantic
-unstructured==0.4.6
+unstructured==0.5.2
     # via -r base.in
 unstructured-api-tools==0.4.9
     # via -r base.in
