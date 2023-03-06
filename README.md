@@ -3,7 +3,7 @@
 </h3>
 
 <h3 align="center">
-  <p>Pre-Processing Pipeline Template</p>
+  <p>Pre-Processing Pipeline for Invoices</p>
 </h3>
 
 
@@ -35,7 +35,7 @@ Give a description of making API calls using example `curl` commands, and exampl
 For example:
 ```
 curl -X 'POST' \
-  'http://localhost:8000/pipeline-invoices/v0.0.0/elements' \
+  'http://localhost:8000/invoices/v0.0.0/invoices' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'file=@need-invoice-name.pdf' | jq -C . | less -R
