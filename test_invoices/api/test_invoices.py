@@ -17,7 +17,7 @@ def test_invoice_parse_file():
     client = TestClient(app)
 
     response = client.post(
-        "/invoices/v0.0.0/invoices",
+        "/invoices/v0.1.0/invoices",
         files={
             "files": (
                 "sample-docs/4fabfaab-1299.png",
@@ -38,7 +38,7 @@ def test_invoice_parse_files():
     ]
 
     response = client.post(
-        "/invoices/v0.0.0/invoices",
+        "/invoices/v0.1.0/invoices",
         files=files,
     )
     assert response.status_code == 200
@@ -49,7 +49,7 @@ def test_invoices_api_with_multipart():
     app.state.limiter.reset()
     client = TestClient(app)
     response = client.post(
-        "/invoices/v0.0.0/invoices",
+        "/invoices/v0.1.0/invoices",
         headers={"Accept": "multipart/mixed"},
         files=[
             ("files", (filename, open(filename, "rb"), "application/pdf")),
