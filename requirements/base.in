@@ -2,7 +2,7 @@ unstructured>=0.2.4
 unstructured_api_tools==0.4.9
 
 torch
-transformers==4.26.0
+transformers==4.27.3
 
 ratelimit
 requests
