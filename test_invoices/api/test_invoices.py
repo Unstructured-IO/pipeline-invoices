@@ -46,7 +46,6 @@ def test_invoice_parse_files():
 
 def test_invoices_api_with_multipart():
     filename = os.path.join("sample-docs/0a7f850d-653.png")
-    app.state.limiter.reset()
     client = TestClient(app)
     response = client.post(
         "/invoices/v0.1.0/invoices",
