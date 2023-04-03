@@ -43,9 +43,9 @@ install-ci: install-base install-test install-ipython-kernel
 ## pip-compile:                 compiles all base/dev/test requirements
 .PHONY: pip-compile
 pip-compile:
-	pip-compile requirements/base.in
-	pip-compile requirements/dev.in
-	pip-compile requirements/test.in
+	pip-compile --upgrade requirements/base.in
+	pip-compile --upgrade requirements/dev.in
+	pip-compile --upgrade requirements/test.in
 
 
 #########
@@ -72,7 +72,7 @@ generate-api:
 
 .PHONY: docker-build
 docker-build:
-	PIP_VERSION=${PIP_VERSION} PIPELINE_FAMILY=${PIPELINE_FAMILY} ./scripts/docker-build.sh
+	PIP_VERSION=${PIP_VERSION} PIPELINE_FAMILY=${PIPELINE_FAMILY} PIPELINE_PACKAGE=${PIPELINE_PACKAGE} ./scripts/docker-build.sh
 
 .PHONY: docker-start-api
 docker-start-api:
@@ -96,21 +96,6 @@ run-jupyter:
 .PHONY: run-web-app
 run-web-app:
 	PYTHONPATH=$(realpath .) uvicorn ${PACKAGE_NAME}.api.app:app --log-config logger_config.yaml --reload
-
-##########
-# Docker #
-##########
-
-# Docker targets are provided for convenience only and are not required in a standard development environment
-
-# Note that the image has notebooks baked in, however the current working directory
-# is mounted under /home/notebook-user/local/ when the image is started with
-# docker-start-api or docker-start-jupyter
-
-.PHONY: docker-build
-docker-build:
-	BUILD_TYPE="" PIP_VERSION=${PIP_VERSION} PIPELINE_FAMILY=${PIPELINE_FAMILY} ./scripts/docker-build.sh
-
 
 
 #################
