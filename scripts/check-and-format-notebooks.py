@@ -30,33 +30,33 @@ def process_nb(nb: nbformat.NotebookNode, working_dir: Union[str, Path]) -> nbfo
 
 
 def merge_adjacent_text_outputs(cell: nbformat.NotebookNode) -> nbformat.NotebookNode:
-     """Merges adjacent text stream outputs to avoid non-deterministic splits in output."""
-     if cell.cell_type != "code":
-         return cell
+    """Merges adjacent text stream outputs to avoid non-deterministic splits in output."""
+    if cell.cell_type != "code":
+        return cell
 
-     new_outputs = []
-     current_output = None
+    new_outputs = []
+    current_output = None
 
-     for output in cell.outputs:
-         if output.output_type == "stream":
-             if current_output is None:
-                 current_output = output
-             elif current_output.name == output.name:
-                 current_output.text += output.text
-             else:
-                 new_outputs.append(current_output)
-                 current_output = output
-         else:
-             if current_output is not None:
-                 new_outputs.append(current_output)
-                 current_output = None
-             new_outputs.append(output)
+    for output in cell.outputs:
+        if output.output_type == "stream":
+            if current_output is None:
+                current_output = output
+            elif current_output.name == output.name:
+                current_output.text += output.text
+            else:
+                new_outputs.append(current_output)
+                current_output = output
+        else:
+            if current_output is not None:
+                new_outputs.append(current_output)
+                current_output = None
+            new_outputs.append(output)
 
-     if current_output is not None:
-         new_outputs.append(current_output)
+    if current_output is not None:
+        new_outputs.append(current_output)
 
-     cell.outputs = new_outputs
-     return cell
+    cell.outputs = new_outputs
+    return cell
 
 
 def nb_paths(root_path: Union[str, Path]) -> List[Path]:
